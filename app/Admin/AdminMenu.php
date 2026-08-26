@@ -98,7 +98,7 @@ final class AdminMenu {
 					'manage_woocommerce',
 					AdminPage::DASHBOARD,
 					array( $this, 'render_app' ),
-					WRR_PLUGIN_URL . 'assets/img/reviews.png',
+					WRR_PLUGIN_URL . 'assets/img/product-starred.svg',
 					58
 				);
 
@@ -129,6 +129,7 @@ final class AdminMenu {
 			}
 		);
 
+		add_action( 'admin_head', array( $this, 'inline_menu_styles' ) );
 		add_action( 'admin_head', array( $this, 'suppress_notices' ), PHP_INT_MAX );
 	}
 
@@ -186,7 +187,7 @@ final class AdminMenu {
 
 		echo '<div class="wrr-submenu-rail-header">';
 		echo '<div class="wrr-submenu-rail-brand">';
-		echo '<span class="wrr-submenu-rail-logo"><img src="' . esc_url( WRR_PLUGIN_URL . 'assets/img/reviews.png' ) . '" alt="' . esc_attr__( 'Review Reminder', 'woocommerce-review-reminder' ) . '"></span>';
+		echo '<span class="wrr-submenu-rail-logo"><img src="' . esc_url( WRR_PLUGIN_URL . 'assets/img/product-starred.svg' ) . '" alt="' . esc_attr__( 'Review Reminder', 'woocommerce-review-reminder' ) . '"></span>';
 		echo '<span>' . esc_html__( 'Review Reminder', 'woocommerce-review-reminder' ) . '</span>';
 		echo '</div>';
 		echo '<div class="wrr-submenu-rail-sub">' . esc_html__( 'WooCommerce', 'woocommerce-review-reminder' ) . '</div>';
@@ -234,9 +235,13 @@ final class AdminMenu {
 	 */
 	public function inline_menu_styles(): void {
 		$css = '
+		#adminmenu #toplevel_page_wrr-dashboard .wp-menu-image {
+			width: 36px;
+			overflow: visible;
+		}
 		#adminmenu #toplevel_page_wrr-dashboard .wp-menu-image img {
-			width: 20px;
-			height: 20px;
+			width: 36px;
+			height: 34px;
 			border-radius: 4px;
 			opacity: 1;
 		}
