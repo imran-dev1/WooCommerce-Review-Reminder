@@ -28,13 +28,17 @@ final class TemplatesView {
 
 		$items = array();
 		foreach ( $templates as $template ) {
-			$arr     = $template->to_array();
-			$items[] = array(
-				'id'         => (int) $arr['id'],
-				'name'       => (string) $arr['name'],
-				'subject'    => (string) $arr['subject'],
-				'body'       => (string) $arr['body'],
-				'is_builtin' => (bool) $arr['is_builtin'],
+			$arr       = $template->to_array();
+			$body_text = trim( (string) wp_strip_all_tags( $arr['body'] ?? '' ) );
+			$body_text = preg_replace( '/\s+/', ' ', $body_text );
+			$items[]   = array(
+				'id'          => (int) $arr['id'],
+				'name'        => (string) $arr['name'],
+				'description' => (string) ( $arr['description'] ?? '' ),
+				'subject'     => (string) $arr['subject'],
+				'body'        => (string) $arr['body'],
+				'body_text'   => (string) $body_text,
+				'is_builtin'  => (bool) $arr['is_builtin'],
 			);
 		}
 
@@ -52,21 +56,24 @@ final class TemplatesView {
 		echo '<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" x-cloak>';
 
 		echo '<template x-for="t in items" :key="t.id">';
-		echo '<div class="wrr-card">';
-		echo '<div class="wrr-card-header">';
-		echo '<div><h2 class="wrr-card-title" x-text="t.name"></h2>';
-		echo '<p class="wrr-card-desc" x-text="t.is_builtin ? \'Built-in\' : \'Custom\'"></p></div>';
-		echo '<span class="wrr-badge wrr-badge-gray" x-text="t.is_builtin ? \'Built-in\' : \'Custom\'"></span>';
+		echo '<div class="wrr-card wrr-template-card">';
+		echo '<div class="wrr-template-head">';
+		echo '<span class="wrr-template-head-icon">' . Icons::get( 'mail', 'h-5 w-5' ) . '</span>';
+		echo '<span class="wrr-badge wrr-badge-lavender" x-text="t.is_builtin ? \'Built-in\' : \'Custom\'"></span>';
 		echo '</div>';
 		echo '<div class="wrr-card-body">';
-		echo '<p class="text-xs text-gray-500">' . esc_html__( 'Subject', 'woocommerce-review-reminder' ) . '</p>';
-		echo '<p class="mt-0.5 truncate text-sm font-medium text-gray-800" x-text="t.subject"></p>';
-		echo '<p class="mt-3 text-xs text-gray-500">' . esc_html__( 'Body', 'woocommerce-review-reminder' ) . '</p>';
-		echo '<p class="mt-0.5 line-clamp-3 text-sm text-gray-600" x-text="t.body"></p>';
-		echo '<div class="mt-4 flex items-center gap-2">';
-		echo '<button type="button" class="wrr-btn wrr-btn-secondary wrr-btn-sm" x-on:click="openPreview(t)">' . Icons::get( 'external' ) . esc_html__( 'Preview', 'woocommerce-review-reminder' ) . '</button>';
-		echo '<button type="button" class="wrr-btn wrr-btn-secondary wrr-btn-sm" x-on:click="openEdit(t)">' . Icons::get( 'edit' ) . esc_html__( 'Edit', 'woocommerce-review-reminder' ) . '</button>';
-		echo '<button type="button" class="wrr-btn wrr-btn-danger wrr-btn-sm" x-on:click="askDelete(t.id, t.name)" x-show="!t.is_builtin">' . Icons::get( 'trash' ) . esc_html__( 'Delete', 'woocommerce-review-reminder' ) . '</button>';
+		echo '<h3 class="wrr-card-title" x-text="t.name"></h3>';
+		echo '<p class="wrr-card-desc" x-show="t.description" x-cloak x-text="t.description"></p>';
+		echo '<p class="wrr-card-label">' . esc_html__( 'Subject', 'woocommerce-review-reminder' ) . '</p>';
+		echo '<p class="wrr-card-value truncate" x-text="t.subject"></p>';
+		echo '<p class="wrr-card-label">' . esc_html__( 'Preview', 'woocommerce-review-reminder' ) . '</p>';
+		echo '<div class="wrr-card-preview" x-text="t.body_text"></div>';
+		echo '<div class="wrr-card-actions">';
+		echo '<div class="flex items-center gap-2">';
+		echo '<button type="button" class="wrr-icon-btn" x-on:click="openPreview(t)" aria-label="' . esc_attr__( 'Preview', 'woocommerce-review-reminder' ) . '" title="' . esc_attr__( 'Preview', 'woocommerce-review-reminder' ) . '">' . Icons::get( 'eye', 'h-4 w-4' ) . '</button>';
+		echo '<button type="button" class="wrr-icon-btn wrr-icon-btn-danger" x-show="!t.is_builtin" x-on:click="askDelete(t.id, t.name)" aria-label="' . esc_attr__( 'Delete', 'woocommerce-review-reminder' ) . '" title="' . esc_attr__( 'Delete', 'woocommerce-review-reminder' ) . '">' . Icons::get( 'trash', 'h-4 w-4' ) . '</button>';
+		echo '</div>';
+		echo '<button type="button" class="wrr-btn wrr-btn-purple" x-on:click="openEdit(t)">' . Icons::get( 'edit', 'h-4 w-4' ) . esc_html__( 'Edit', 'woocommerce-review-reminder' ) . '</button>';
 		echo '</div>';
 		echo '</div>';
 		echo '</div>';
@@ -88,6 +95,10 @@ final class TemplatesView {
 		echo '<div class="wrr-field">';
 		echo '<label class="wrr-label">' . esc_html__( 'Name', 'woocommerce-review-reminder' ) . '</label>';
 		echo '<input type="text" class="wrr-input" x-model="form.name" placeholder="' . esc_attr__( 'e.g. Thank you & review', 'woocommerce-review-reminder' ) . '" />';
+		echo '</div>';
+		echo '<div class="wrr-field">';
+		echo '<label class="wrr-label">' . esc_html__( 'Description', 'woocommerce-review-reminder' ) . '</label>';
+		echo '<input type="text" class="wrr-input" x-model="form.description" placeholder="' . esc_attr__( 'Short description shown on the template card.', 'woocommerce-review-reminder' ) . '" />';
 		echo '</div>';
 		echo '<div class="wrr-field">';
 		echo '<label class="wrr-label">' . esc_html__( 'Subject', 'woocommerce-review-reminder' ) . '</label>';
