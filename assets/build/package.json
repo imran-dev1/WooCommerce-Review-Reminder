@@ -9,6 +9,7 @@
     "build": "npm run css && npm run js"
   },
   "dependencies": {
+    "@alpinejs/focus": "^3.14.8",
     "alpinejs": "^3.14.8",
     "chart.js": "^4.4.7"
   },

@@ -5,7 +5,10 @@
  * through the plugin REST API (nonce authenticated). Bundle built with esbuild.
  */
 import Alpine from 'alpinejs';
+import focus from '@alpinejs/focus';
 import { Chart } from 'chart.js/auto';
+
+Alpine.plugin(focus);
 
 const cfg = window.WRR_CONFIG || {};
 const NONCE = cfg.nonce || '';
@@ -39,12 +42,24 @@ function buildUrl(path, params) {
  * @returns {Promise<any>}
  */
 async function api(method, path, body, params) {
-	const init = { method, headers: { 'X-WP-Nonce': NONCE } };
+	const controller = new AbortController();
+	const timeout = window.setTimeout(() => controller.abort(), 30000);
+	const init = { method, headers: { 'X-WP-Nonce': NONCE }, signal: controller.signal };
 	if (body !== undefined) {
 		init.headers['Content-Type'] = 'application/json';
 		init.body = JSON.stringify(body);
 	}
-	const res = await fetch(buildUrl(path, params), init);
+	let res;
+	try {
+		res = await fetch(buildUrl(path, params), init);
+	} catch (e) {
+		window.clearTimeout(timeout);
+		if (e && e.name === 'AbortError') {
+			throw new Error('The request timed out. Please try again.');
+		}
+		throw new Error('Network error — could not reach the server.');
+	}
+	window.clearTimeout(timeout);
 	let data = null;
 	try {
 		data = await res.json();
@@ -303,19 +318,20 @@ document.addEventListener('alpine:init', () => {
 			this.form = null;
 		},
 		async saveTemplate() {
-			if (!this.form || !this.form.name.trim()) {
+			const form = this.form || { id: 0, name: '', subject: '', body: '' };
+			if (!form.name || !String(form.name).trim()) {
 				WRR.toast('Template name is required.', 'error');
 				return;
 			}
 			this.saving = true;
 			try {
 				const payload = {
-					name: this.form.name.trim(),
-					subject: this.form.subject,
-					body: this.form.body,
+					name: String(form.name).trim(),
+					subject: form.subject || '',
+					body: form.body || '',
 				};
-				if (this.form.id > 0) {
-					await WRR.api('PUT', `templates/${this.form.id}`, payload);
+				if (form.id > 0) {
+					await WRR.api('PUT', `templates/${form.id}`, payload);
 					WRR.toast('Template updated.');
 				} else {
 					await WRR.api('POST', 'templates', payload);
@@ -323,7 +339,7 @@ document.addEventListener('alpine:init', () => {
 				}
 				WRR.reload();
 			} catch (err) {
-				WRR.toast(err.message, 'error');
+				WRR.toast(err && err.message ? err.message : 'Could not save the template.', 'error');
 			} finally {
 				this.saving = false;
 			}
