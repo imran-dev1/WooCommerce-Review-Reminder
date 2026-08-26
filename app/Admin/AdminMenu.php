@@ -186,11 +186,11 @@ final class AdminMenu {
 		echo '<aside class="wrr-submenu-rail">';
 
 		echo '<div class="wrr-submenu-rail-header">';
+		echo '<span class="wrr-submenu-rail-logo"><img src="' . esc_url( WRR_PLUGIN_URL . 'assets/img/product-starred.svg' ) . '" alt="' . esc_attr__( 'Review Reminder', 'woocommerce-review-reminder' ) . '"></span>';
 		echo '<div class="wrr-submenu-rail-brand">';
 		echo '<span>' . esc_html__( 'Review Reminder', 'woocommerce-review-reminder' ) . '</span>';
 		echo '<div class="wrr-submenu-rail-sub">' . esc_html__( 'WooCommerce', 'woocommerce-review-reminder' ) . '</div>';
 		echo '</div>';
-		echo '<span class="wrr-submenu-rail-logo"><img src="' . esc_url( WRR_PLUGIN_URL . 'assets/img/product-starred.svg' ) . '" alt="' . esc_attr__( 'Review Reminder', 'woocommerce-review-reminder' ) . '"></span>';
 		echo '</div>';
 
 		echo '<nav class="wrr-submenu-rail-nav">';
