@@ -99,7 +99,12 @@ final class TemplatesController extends RestController {
 		);
 
 		if ( $id <= 0 ) {
-			return rest_ensure_response( new \WP_Error( 'create_failed', __( 'Could not create the template.', 'woocommerce-review-reminder' ), array( 'status' => 500 ) ) );
+			$message  = __( 'Could not create the template.', 'woocommerce-review-reminder' );
+			$db_error = $repo->last_error();
+			if ( '' !== $db_error ) {
+				$message .= ' ' . __( 'Database error:', 'woocommerce-review-reminder' ) . ' ' . $db_error;
+			}
+			return rest_ensure_response( new \WP_Error( 'create_failed', $message, array( 'status' => 500 ) ) );
 		}
 
 		return rest_ensure_response(
@@ -140,7 +145,15 @@ final class TemplatesController extends RestController {
 			$payload['body'] = (string) $data['body'];
 		}
 
-		$repo->update( $id, $payload );
+		$updated = $repo->update( $id, $payload );
+		if ( false === $updated ) {
+			$message  = __( 'Could not update the template.', 'woocommerce-review-reminder' );
+			$db_error = $repo->last_error();
+			if ( '' !== $db_error ) {
+				$message .= ' ' . __( 'Database error:', 'woocommerce-review-reminder' ) . ' ' . $db_error;
+			}
+			return rest_ensure_response( new \WP_Error( 'update_failed', $message, array( 'status' => 500 ) ) );
+		}
 
 		return rest_ensure_response( array( 'item' => $repo->find( $id )->to_array() ) );
 	}

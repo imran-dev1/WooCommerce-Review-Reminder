@@ -71,7 +71,7 @@ final class TemplateRepository extends Repository {
 			$slug = sanitize_title( $name );
 		}
 		$now = current_time( 'mysql' );
-		$this->wpdb->insert(
+		$inserted = $this->wpdb->insert(
 			$this->table( 'templates' ),
 			array(
 				'name'       => $name,
@@ -84,6 +84,10 @@ final class TemplateRepository extends Repository {
 			),
 			array( '%s', '%s', '%d', '%s', '%s', '%s', '%s' )
 		);
+		if ( false === $inserted ) {
+			$this->logger->error( 'Template insert failed: ' . (string) $this->wpdb->last_error );
+			return 0;
+		}
 		return (int) $this->wpdb->insert_id;
 	}
 
@@ -155,13 +159,27 @@ final class TemplateRepository extends Repository {
 		$fields['updated_at'] = current_time( 'mysql' );
 		$format[]             = '%s';
 
-		return false !== $this->wpdb->update(
+		$result = $this->wpdb->update(
 			$this->table( 'templates' ),
 			$fields,
 			array( 'id' => $id ),
 			$format,
 			array( '%d' )
 		);
+		if ( false === $result ) {
+			$this->logger->error( 'Template update failed: ' . (string) $this->wpdb->last_error );
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Last database error message (empty when none).
+	 *
+	 * @return string
+	 */
+	public function last_error(): string {
+		return (string) $this->wpdb->last_error;
 	}
 
 	/**

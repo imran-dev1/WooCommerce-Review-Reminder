@@ -78,10 +78,10 @@ final class TemplatesView {
 		echo '<div x-data="wrrConfirm()" x-on:wrr-confirm-ask.window="ask($event.detail)">' . View::confirm_modal() . '</div>';
 
 		// Edit modal.
-		echo '<div x-show="form" x-cloak class="wrr-modal-overlay" x-transition.opacity>';
-		echo '<div class="wrr-modal" x-on:click.outside="closeForm()" x-trap="form">';
+		echo '<div x-show="formOpen" x-cloak class="wrr-modal-overlay" x-transition.opacity>';
+		echo '<div class="wrr-modal" x-on:click.outside="closeForm()" x-trap="formOpen">';
 		echo '<div class="wrr-modal-header">';
-		echo '<h3 class="text-lg font-semibold text-gray-900" x-text="form ? (form.id > 0 ? \'Edit template\' : \'New template\') : \'\'"></h3>';
+		echo '<h3 class="text-lg font-semibold text-gray-900" x-text="form.id > 0 ? \'Edit template\' : \'New template\'"></h3>';
 		echo '<button type="button" class="text-gray-400 hover:text-gray-600" x-on:click="closeForm()" aria-label="' . esc_attr__( 'Close', 'woocommerce-review-reminder' ) . '">' . Icons::get( 'x' ) . '</button>';
 		echo '</div>';
 		echo '<div class="wrr-modal-body">';

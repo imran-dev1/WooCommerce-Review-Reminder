@@ -300,7 +300,8 @@ document.addEventListener('alpine:init', () => {
 	Alpine.data('wrrTemplates', (initial) => ({
 		items: initial || [],
 		preview: null,
-		form: null,
+		form: { id: 0, name: '', subject: '', body: '' },
+		formOpen: false,
 		saving: false,
 		deletingId: null,
 		openPreview(t) {
@@ -311,11 +312,12 @@ document.addEventListener('alpine:init', () => {
 		},
 		openEdit(t) {
 			this.form = t
-				? { id: t.id, name: t.name, subject: t.subject, body: t.body }
+				? { id: t.id, name: t.name || '', subject: t.subject || '', body: t.body || '' }
 				: { id: 0, name: '', subject: '', body: '' };
+			this.formOpen = true;
 		},
 		closeForm() {
-			this.form = null;
+			this.formOpen = false;
 		},
 		async saveTemplate() {
 			const form = this.form || { id: 0, name: '', subject: '', body: '' };
