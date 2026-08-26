@@ -306,7 +306,7 @@ document.addEventListener('alpine:init', () => {
 
 	/* Email template list: preview / create / edit / delete. */
 	Alpine.data('wrrTemplates', (initial) => ({
-		items: initial || [],
+		items: Array.isArray(initial) ? initial : (initial && initial.items) || [],
 		preview: null,
 		form: { id: 0, name: '', subject: '', body: '' },
 		formOpen: false,
