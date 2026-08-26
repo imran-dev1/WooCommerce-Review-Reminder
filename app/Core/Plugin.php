@@ -135,6 +135,12 @@ final class Plugin {
 				$this->container->get( \WooCommerceReviewReminder\Database\Installer::class )->deactivate();
 			}
 		);
+
+		// Run schema upgrades when the stored version is older than the current
+		// one, so tables installed by previous versions get migrated on update.
+		$installer = $this->container->get( \WooCommerceReviewReminder\Database\Installer::class );
+		add_action( 'admin_init', array( $installer, 'maybe_upgrade' ) );
+		add_action( 'rest_api_init', array( $installer, 'maybe_upgrade' ) );
 	}
 
 	/**

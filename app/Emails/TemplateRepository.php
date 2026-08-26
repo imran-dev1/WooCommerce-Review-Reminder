@@ -65,12 +65,17 @@ final class TemplateRepository extends Repository {
 	 * @return int
 	 */
 	public function create( array $data ): int {
+		$name = sanitize_text_field( $data['name'] ?? '' );
+		$slug = sanitize_title( $data['slug'] ?? '' );
+		if ( '' === $slug ) {
+			$slug = sanitize_title( $name );
+		}
 		$now = current_time( 'mysql' );
 		$this->wpdb->insert(
 			$this->table( 'templates' ),
 			array(
-				'name'       => sanitize_text_field( $data['name'] ?? '' ),
-				'slug'       => sanitize_title( $data['slug'] ?? '' ),
+				'name'       => $name,
+				'slug'       => $this->unique_slug( $slug ),
 				'is_builtin' => absint( $data['is_builtin'] ?? 0 ),
 				'subject'    => sanitize_text_field( $data['subject'] ?? '' ),
 				'body'       => wp_kses_post( $data['body'] ?? '' ),
@@ -80,6 +85,44 @@ final class TemplateRepository extends Repository {
 			array( '%s', '%s', '%d', '%s', '%s', '%s', '%s' )
 		);
 		return (int) $this->wpdb->insert_id;
+	}
+
+	/**
+	 * Make a slug unique against existing rows, appending a numeric suffix.
+	 *
+	 * @param string $slug       Desired slug.
+	 * @param int    $exclude_id Row id to ignore (used on update).
+	 * @return string
+	 */
+	private function unique_slug( string $slug, int $exclude_id = 0 ): string {
+		if ( '' === $slug ) {
+			$slug = 'template';
+		}
+		$base   = $slug;
+		$suffix = 2;
+		while ( $this->slug_exists( $slug, $exclude_id ) ) {
+			$slug = $base . '-' . $suffix++;
+		}
+		return $slug;
+	}
+
+	/**
+	 * Whether a slug is already in use.
+	 *
+	 * @param string $slug       Slug to check.
+	 * @param int    $exclude_id Row id to ignore.
+	 * @return bool
+	 */
+	private function slug_exists( string $slug, int $exclude_id ): bool {
+		$found = $this->wpdb->get_var(
+			$this->wpdb->prepare(
+				'SELECT id FROM %i WHERE slug = %s AND id <> %d LIMIT 1',
+				$this->table( 'templates' ),
+				$slug,
+				$exclude_id
+			)
+		);
+		return null !== $found;
 	}
 
 	/**
