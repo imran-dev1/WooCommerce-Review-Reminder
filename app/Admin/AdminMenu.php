@@ -235,15 +235,10 @@ final class AdminMenu {
 	 */
 	public function inline_menu_styles(): void {
 		$css = '
-		#adminmenu #toplevel_page_wrr-dashboard .wp-menu-image {
-			width: 36px;
-			overflow: visible;
-		}
 		#adminmenu #toplevel_page_wrr-dashboard .wp-menu-image img {
-			width: 36px;
-			height: 34px;
-			border-radius: 4px;
-			opacity: 1;
+			width: 20px;
+			height: 20px;
+			padding-top: 7px;
 		}
 		#adminmenu #toplevel_page_wrr-dashboard.wp-has-current-submenu > a.menu-top,
 		#adminmenu #toplevel_page_wrr-dashboard.wp-has-current-submenu > a.menu-top:hover {
