@@ -798,17 +798,24 @@
 }
 
 .wrr-submenu-rail-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
 	padding: 1.25rem 1.25rem 0.875rem;
 	border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .wrr-submenu-rail-brand {
-	display: flex;
-	align-items: center;
-	gap: 0.625rem;
+	min-width: 0;
+}
+
+.wrr-submenu-rail-brand > span {
+	display: block;
 	color: #ffffff;
 	font-weight: 600;
 	font-size: 0.875rem;
+	line-height: 1.25;
 }
 
 .wrr-submenu-rail-logo {
@@ -834,7 +841,7 @@
 	font-size: 0.6875rem;
 	text-transform: uppercase;
 	letter-spacing: 0.06em;
-	margin: 0.375rem 0 0 2.625rem;
+	margin-top: 0.25rem;
 }
 
 .wrr-submenu-rail-nav {
