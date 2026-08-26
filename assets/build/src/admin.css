@@ -927,3 +927,17 @@ body.wrr-admin #toplevel_page_wrr-dashboard .wp-submenu {
 .wrr-app .wrr-hero-desc {
 	color: #e0e7ff;
 }
+
+/* Hide any third-party admin notices that slip past the hook removal on
+ * plugin pages. Scoped to the plugin body class so it never affects other
+ * admin screens. */
+body.wrr-admin .notice,
+body.wrr-admin .notice-error,
+body.wrr-admin .notice-warning,
+body.wrr-admin .notice-info,
+body.wrr-admin .notice-success,
+body.wrr-admin .updated,
+body.wrr-admin .error,
+body.wrr-admin .update-nag {
+	display: none !important;
+}

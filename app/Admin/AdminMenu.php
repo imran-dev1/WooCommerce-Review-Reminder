@@ -129,7 +129,7 @@ final class AdminMenu {
 			}
 		);
 
-		add_action( 'admin_head', array( $this, 'inline_menu_styles' ) );
+		add_action( 'admin_head', array( $this, 'suppress_notices' ), PHP_INT_MAX );
 	}
 
 	/**
@@ -146,6 +146,23 @@ final class AdminMenu {
 
 		$this->submenu_rail( $slug );
 		call_user_func( $renderer );
+	}
+
+	/**
+	 * Remove all admin notice hooks so no third-party notifications render
+	 * inside the plugin's admin pages. Hooked on admin_head at the maximum
+	 * priority: it runs after every other admin_head callback but still before
+	 * admin-header.php fires admin_notices/all_admin_notices.
+	 */
+	public function suppress_notices(): void {
+		$screen = get_current_screen();
+		if ( ! $screen || false === strpos( (string) $screen->id, 'wrr-' ) ) {
+			return;
+		}
+		remove_all_actions( 'admin_notices' );
+		remove_all_actions( 'all_admin_notices' );
+		remove_all_actions( 'network_admin_notices' );
+		remove_all_actions( 'user_admin_notices' );
 	}
 
 	/**
