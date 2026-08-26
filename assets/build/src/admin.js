@@ -42,37 +42,45 @@ function buildUrl(path, params) {
  * @returns {Promise<any>}
  */
 async function api(method, path, body, params) {
-	const controller = new AbortController();
-	const timeout = window.setTimeout(() => controller.abort(), 30000);
-	const init = { method, headers: { 'X-WP-Nonce': NONCE }, signal: controller.signal };
-	if (body !== undefined) {
-		init.headers['Content-Type'] = 'application/json';
-		init.body = JSON.stringify(body);
-	}
-	let res;
-	try {
-		res = await fetch(buildUrl(path, params), init);
-	} catch (e) {
-		window.clearTimeout(timeout);
-		if (e && e.name === 'AbortError') {
-			throw new Error('The request timed out. Please try again.');
+	async function request(m) {
+		const controller = new AbortController();
+		const timeout = window.setTimeout(() => controller.abort(), 30000);
+		const init = { method: m, headers: { 'X-WP-Nonce': NONCE }, signal: controller.signal };
+		if (body !== undefined) {
+			init.headers['Content-Type'] = 'application/json';
+			init.body = JSON.stringify(body);
 		}
-		throw new Error('Network error — could not reach the server.');
+		let res;
+		try {
+			res = await fetch(buildUrl(path, params), init);
+		} catch (e) {
+			window.clearTimeout(timeout);
+			if (e && e.name === 'AbortError') {
+				throw new Error('The request timed out. Please try again.');
+			}
+			throw new Error('Network error — could not reach the server.');
+		}
+		window.clearTimeout(timeout);
+		let data = null;
+		try {
+			data = await res.json();
+		} catch (e) {
+			data = null;
+		}
+		return { res, data };
 	}
-	window.clearTimeout(timeout);
-	let data = null;
-	try {
-		data = await res.json();
-	} catch (e) {
-		data = null;
+
+	let result = await request(method);
+	if (method === 'DELETE' && !result.res.ok && result.data && result.data.code === 'rest_no_route') {
+		result = await request('POST');
 	}
-	if (!res.ok) {
+	if (!result.res.ok) {
 		let message = 'Request failed';
-		if (data && data.message) message = data.message;
-		else if (data && data.code) message = String(data.code);
+		if (result.data && result.data.message) message = result.data.message;
+		else if (result.data && result.data.code) message = String(result.data.code);
 		throw new Error(message);
 	}
-	return data;
+	return result.data;
 }
 
 let toastWrap = null;

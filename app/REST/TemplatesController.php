@@ -49,6 +49,12 @@ final class TemplatesController extends RestController {
 					'permission_callback' => array( $this, 'permission_callback' ),
 				),
 				array(
+					// DELETE alias: some proxies/WAFs rewrite DELETE to POST.
+					'methods'             => 'POST',
+					'callback'            => array( $this, 'delete' ),
+					'permission_callback' => array( $this, 'permission_callback' ),
+				),
+				array(
 					'methods'             => 'DELETE',
 					'callback'            => array( $this, 'delete' ),
 					'permission_callback' => array( $this, 'permission_callback' ),
