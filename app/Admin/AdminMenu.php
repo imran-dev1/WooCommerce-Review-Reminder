@@ -239,6 +239,7 @@ final class AdminMenu {
 			width: 20px;
 			height: 20px;
 			padding-top: 7px;
+			opacity: 1;
 		}
 		#adminmenu #toplevel_page_wrr-dashboard.wp-has-current-submenu > a.menu-top,
 		#adminmenu #toplevel_page_wrr-dashboard.wp-has-current-submenu > a.menu-top:hover {
