@@ -814,14 +814,19 @@
 .wrr-submenu-rail-logo {
 	width: 2rem;
 	height: 2rem;
-	border-radius: 0.625rem;
-	background-image: linear-gradient(135deg, #818cf8, #c084fc);
-	color: #ffffff;
+	border-radius: 0.5rem;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	flex: none;
-	box-shadow: 0 6px 16px -4px rgba(129, 140, 248, 0.6);
+	overflow: hidden;
+}
+
+.wrr-submenu-rail-logo img {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	display: block;
 }
 
 .wrr-submenu-rail-sub {

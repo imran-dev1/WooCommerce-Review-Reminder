@@ -98,7 +98,7 @@ final class AdminMenu {
 					'manage_woocommerce',
 					AdminPage::DASHBOARD,
 					array( $this, 'render_app' ),
-					'dashicons-star-filled',
+					WRR_PLUGIN_URL . 'assets/img/reviews.png',
 					58
 				);
 
@@ -186,7 +186,7 @@ final class AdminMenu {
 
 		echo '<div class="wrr-submenu-rail-header">';
 		echo '<div class="wrr-submenu-rail-brand">';
-		echo '<span class="wrr-submenu-rail-logo">' . Icons::get( 'star', 'h-4 w-4' ) . '</span>';
+		echo '<span class="wrr-submenu-rail-logo"><img src="' . esc_url( WRR_PLUGIN_URL . 'assets/img/reviews.png' ) . '" alt="' . esc_attr__( 'Review Reminder', 'woocommerce-review-reminder' ) . '"></span>';
 		echo '<span>' . esc_html__( 'Review Reminder', 'woocommerce-review-reminder' ) . '</span>';
 		echo '</div>';
 		echo '<div class="wrr-submenu-rail-sub">' . esc_html__( 'WooCommerce', 'woocommerce-review-reminder' ) . '</div>';
@@ -234,6 +234,12 @@ final class AdminMenu {
 	 */
 	public function inline_menu_styles(): void {
 		$css = '
+		#adminmenu #toplevel_page_wrr-dashboard .wp-menu-image img {
+			width: 20px;
+			height: 20px;
+			border-radius: 4px;
+			opacity: 1;
+		}
 		#adminmenu #toplevel_page_wrr-dashboard.wp-has-current-submenu > a.menu-top,
 		#adminmenu #toplevel_page_wrr-dashboard.wp-has-current-submenu > a.menu-top:hover {
 			background: linear-gradient(90deg, rgba(99,102,241,.34), rgba(139,92,246,.16));
