@@ -1,0 +1,20 @@
+{
+  "name": "woocommerce-review-reminder-assets",
+  "private": true,
+  "version": "1.1.0",
+  "type": "module",
+  "scripts": {
+    "css": "tailwindcss -i ./src/admin.css -o ../css/admin.css --minify",
+    "js": "esbuild ./src/admin.js --bundle --minify --outfile=../js/admin.js --target=es2019",
+    "build": "npm run css && npm run js"
+  },
+  "dependencies": {
+    "alpinejs": "^3.14.8",
+    "chart.js": "^4.4.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.0.0",
+    "esbuild": "^0.24.0",
+    "tailwindcss": "^4.0.0"
+  }
+}
