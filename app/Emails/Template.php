@@ -69,6 +69,15 @@ final class Template {
 	}
 
 	/**
+	 * Description.
+	 *
+	 * @return string
+	 */
+	public function description(): string {
+		return (string) ( $this->data['description'] ?? '' );
+	}
+
+	/**
 	 * Whether this is a built-in template.
 	 *
 	 * @return bool

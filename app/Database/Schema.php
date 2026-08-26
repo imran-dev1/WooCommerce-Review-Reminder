@@ -21,7 +21,7 @@ final class Schema {
 	 *
 	 * @var string
 	 */
-	public const VERSION = '1.1.0';
+	public const VERSION = '1.2.0';
 
 	/**
 	 * Option name that stores the installed schema version.
@@ -176,6 +176,7 @@ final class Schema {
 					id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 					name varchar(255) NOT NULL,
 					slug varchar(255) NOT NULL,
+					description text NULL,
 					is_builtin tinyint(1) unsigned NOT NULL DEFAULT 0,
 					subject varchar(255) NOT NULL,
 					body longtext NOT NULL,

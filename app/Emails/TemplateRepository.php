@@ -74,15 +74,16 @@ final class TemplateRepository extends Repository {
 		$inserted = $this->wpdb->insert(
 			$this->table( 'templates' ),
 			array(
-				'name'       => $name,
-				'slug'       => $this->unique_slug( $slug ),
-				'is_builtin' => absint( $data['is_builtin'] ?? 0 ),
-				'subject'    => sanitize_text_field( $data['subject'] ?? '' ),
-				'body'       => wp_kses_post( $data['body'] ?? '' ),
-				'created_at' => $now,
-				'updated_at' => $now,
+				'name'        => $name,
+				'slug'        => $this->unique_slug( $slug ),
+				'description' => sanitize_textarea_field( $data['description'] ?? '' ),
+				'is_builtin'  => absint( $data['is_builtin'] ?? 0 ),
+				'subject'     => sanitize_text_field( $data['subject'] ?? '' ),
+				'body'        => wp_kses_post( $data['body'] ?? '' ),
+				'created_at'  => $now,
+				'updated_at'  => $now,
 			),
-			array( '%s', '%s', '%d', '%s', '%s', '%s', '%s' )
+			array( '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s' )
 		);
 		if ( false === $inserted ) {
 			$this->logger->error( 'Template insert failed: ' . (string) $this->wpdb->last_error );
@@ -144,6 +145,10 @@ final class TemplateRepository extends Repository {
 			$fields['name'] = sanitize_text_field( $data['name'] );
 			$format[]       = '%s';
 		}
+		if ( array_key_exists( 'description', $data ) ) {
+			$fields['description'] = sanitize_textarea_field( $data['description'] );
+			$format[]              = '%s';
+		}
 		if ( array_key_exists( 'subject', $data ) ) {
 			$fields['subject'] = sanitize_text_field( $data['subject'] );
 			$format[]          = '%s';
@@ -204,15 +209,33 @@ final class TemplateRepository extends Repository {
 			$this->wpdb->insert(
 				$this->table( 'templates' ),
 				array(
-					'name'       => $template['name'],
-					'slug'       => $template['slug'],
-					'is_builtin' => 1,
-					'subject'    => $template['subject'],
-					'body'       => $template['body'],
-					'created_at' => current_time( 'mysql' ),
-					'updated_at' => current_time( 'mysql' ),
+					'name'        => $template['name'],
+					'slug'        => $template['slug'],
+					'description' => $template['description'],
+					'is_builtin'  => 1,
+					'subject'     => $template['subject'],
+					'body'        => $template['body'],
+					'created_at'  => current_time( 'mysql' ),
+					'updated_at'  => current_time( 'mysql' ),
 				),
-				array( '%s', '%s', '%d', '%s', '%s', '%s', '%s' )
+				array( '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s' )
+			);
+		}
+	}
+
+	/**
+	 * Backfill descriptions for built-in templates that have none.
+	 */
+	public function backfill_default_descriptions(): void {
+		foreach ( $this->default_templates() as $template ) {
+			$this->wpdb->query(
+				$this->wpdb->prepare(
+					'UPDATE %i SET description = %s WHERE slug = %s AND is_builtin = 1 AND (description IS NULL OR description = %s)', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+					$this->table( 'templates' ),
+					$template['description'],
+					$template['slug'],
+					''
+				)
 			);
 		}
 	}
@@ -225,9 +248,10 @@ final class TemplateRepository extends Repository {
 	private function default_templates(): array {
 		return array(
 			array(
-				'name'    => __( 'Simple Review Request', 'woocommerce-review-reminder' ),
-				'slug'    => 'simple-review-request',
-				'subject' => __( 'How are you enjoying your {{product_name}}?', 'woocommerce-review-reminder' ),
+				'name'        => __( 'Simple Review Request', 'woocommerce-review-reminder' ),
+				'slug'        => 'simple-review-request',
+				'description' => __( 'A simple and effective email to ask customers for a review.', 'woocommerce-review-reminder' ),
+				'subject'     => __( 'How are you enjoying your {{product_name}}?', 'woocommerce-review-reminder' ),
 				'body'    => '<p>' . __( 'Hi {{customer_first_name}},', 'woocommerce-review-reminder' ) . '</p>'
 					. '<p>' . __( 'Thank you for your recent purchase!', 'woocommerce-review-reminder' ) . '</p>'
 					. '<p>' . __( "We'd love to hear what you think about {{product_name}}.", 'woocommerce-review-reminder' ) . '</p>'
@@ -235,9 +259,10 @@ final class TemplateRepository extends Repository {
 					. '<p style="margin-top:24px;">' . __( 'Thank you,', 'woocommerce-review-reminder' ) . '<br>{{store_name}}</p>',
 			),
 			array(
-				'name'    => __( 'Product Feedback', 'woocommerce-review-reminder' ),
-				'slug'    => 'product-feedback',
-				'subject' => __( 'Share your feedback on {{product_name}}', 'woocommerce-review-reminder' ),
+				'name'        => __( 'Product Feedback', 'woocommerce-review-reminder' ),
+				'slug'        => 'product-feedback',
+				'description' => __( 'Collect detailed feedback about a specific product.', 'woocommerce-review-reminder' ),
+				'subject'     => __( 'Share your feedback on {{product_name}}', 'woocommerce-review-reminder' ),
 				'body'    => '<p>' . __( 'Hi {{customer_first_name}},', 'woocommerce-review-reminder' ) . '</p>'
 					. '<p>' . __( 'We hope you are enjoying your new product!', 'woocommerce-review-reminder' ) . '</p>'
 					. '<div style="margin:24px 0;padding:20px;background-color:#f8fafc;border-radius:8px;text-align:center;">'
@@ -250,9 +275,10 @@ final class TemplateRepository extends Repository {
 					. '<p style="margin-top:24px;">' . __( 'Thank you,', 'woocommerce-review-reminder' ) . '<br>{{store_name}}</p>',
 			),
 			array(
-				'name'    => __( 'Friendly Follow-up', 'woocommerce-review-reminder' ),
-				'slug'    => 'friendly-followup',
-				'subject' => __( 'How was your experience with {{product_name}}?', 'woocommerce-review-reminder' ),
+				'name'        => __( 'Friendly Follow-up', 'woocommerce-review-reminder' ),
+				'slug'        => 'friendly-followup',
+				'description' => __( 'A gentle follow-up to check on the customer\'s experience.', 'woocommerce-review-reminder' ),
+				'subject'     => __( 'How was your experience with {{product_name}}?', 'woocommerce-review-reminder' ),
 				'body'    => '<p>' . __( 'Hi {{customer_first_name}},', 'woocommerce-review-reminder' ) . '</p>'
 					. '<p>' . __( 'Just checking in! We noticed you recently ordered {{product_name}}.', 'woocommerce-review-reminder' ) . '</p>'
 					. '<p>' . __( 'If you have a moment, we would love to hear how it went.', 'woocommerce-review-reminder' ) . '</p>'
@@ -260,9 +286,10 @@ final class TemplateRepository extends Repository {
 					. '<p style="margin-top:24px;">' . __( 'Warm regards,', 'woocommerce-review-reminder' ) . '<br>{{store_name}}</p>',
 			),
 			array(
-				'name'    => __( 'Thank You + Review', 'woocommerce-review-reminder' ),
-				'slug'    => 'thank-you-review',
-				'subject' => __( 'Thank you for your order, {{customer_first_name}}!', 'woocommerce-review-reminder' ),
+				'name'        => __( 'Thank You + Review', 'woocommerce-review-reminder' ),
+				'slug'        => 'thank-you-review',
+				'description' => __( 'Thank customers and invite them to share their experience.', 'woocommerce-review-reminder' ),
+				'subject'     => __( 'Thank you for your order, {{customer_first_name}}!', 'woocommerce-review-reminder' ),
 				'body'    => '<p>' . __( 'Hi {{customer_first_name}},', 'woocommerce-review-reminder' ) . '</p>'
 					. '<p>' . __( 'Thank you so much for your order. We truly appreciate your support.', 'woocommerce-review-reminder' ) . '</p>'
 					. '<p>' . __( 'Your opinion matters to us and to other customers. Could you spare a minute to review {{product_name}}?', 'woocommerce-review-reminder' ) . '</p>'

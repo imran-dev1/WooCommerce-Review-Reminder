@@ -109,6 +109,7 @@ final class Installer {
 	private function seed_defaults(): void {
 		$template_repo = new \WooCommerceReviewReminder\Emails\TemplateRepository( $this->schema, $this->logger );
 		$template_repo->seed_default_templates();
+		$template_repo->backfill_default_descriptions();
 
 		// Only seed a starter campaign when the campaigns table is empty.
 		$campaign_repo = new \WooCommerceReviewReminder\Campaigns\Repository\CampaignRepository( $this->schema, $this->logger );

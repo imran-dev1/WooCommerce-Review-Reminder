@@ -310,7 +310,7 @@ document.addEventListener('alpine:init', () => {
 		preview: null,
 		previewHtml: null,
 		previewLoading: false,
-		form: { id: 0, name: '', subject: '', body: '' },
+		form: { id: 0, name: '', description: '', subject: '', body: '' },
 		formOpen: false,
 		saving: false,
 		deletingId: null,
@@ -339,8 +339,14 @@ document.addEventListener('alpine:init', () => {
 		},
 		openEdit(t) {
 			this.form = t
-				? { id: t.id, name: t.name || '', subject: t.subject || '', body: t.body || '' }
-				: { id: 0, name: '', subject: '', body: '' };
+				? {
+						id: t.id,
+						name: t.name || '',
+						description: t.description || '',
+						subject: t.subject || '',
+						body: t.body || '',
+				  }
+				: { id: 0, name: '', description: '', subject: '', body: '' };
 			this.formOpen = true;
 		},
 		closeForm() {
@@ -356,6 +362,7 @@ document.addEventListener('alpine:init', () => {
 			try {
 				const payload = {
 					name: String(form.name).trim(),
+					description: form.description || '',
 					subject: form.subject || '',
 					body: form.body || '',
 				};

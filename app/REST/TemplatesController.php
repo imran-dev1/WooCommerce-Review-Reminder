@@ -97,10 +97,11 @@ final class TemplatesController extends RestController {
 		$repo = $this->service( TemplateRepository::class );
 		$id   = $repo->create(
 			array(
-				'name'    => (string) ( $data['name'] ?? '' ),
-				'slug'    => sanitize_title( (string) ( $data['name'] ?? 'template' ) ),
-				'subject' => (string) ( $data['subject'] ?? '' ),
-				'body'    => (string) ( $data['body'] ?? '' ),
+				'name'        => (string) ( $data['name'] ?? '' ),
+				'slug'        => sanitize_title( (string) ( $data['name'] ?? 'template' ) ),
+				'description' => (string) ( $data['description'] ?? '' ),
+				'subject'     => (string) ( $data['subject'] ?? '' ),
+				'body'        => (string) ( $data['body'] ?? '' ),
 			)
 		);
 
@@ -143,6 +144,9 @@ final class TemplatesController extends RestController {
 		$payload = array();
 		if ( array_key_exists( 'name', $data ) ) {
 			$payload['name'] = (string) $data['name'];
+		}
+		if ( array_key_exists( 'description', $data ) ) {
+			$payload['description'] = (string) $data['description'];
 		}
 		if ( array_key_exists( 'subject', $data ) ) {
 			$payload['subject'] = (string) $data['subject'];
