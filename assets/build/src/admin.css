@@ -955,3 +955,68 @@ body.wrr-admin .error,
 body.wrr-admin .update-nag {
 	display: none !important;
 }
+
+/*
+ * Remove WP's blue focus ring and stop it recoloring text on plugin pages.
+ * Deep-coloured buttons keep white text through hover and focus.
+ */
+body.wrr-admin a:focus,
+body.wrr-admin a:focus-visible,
+body.wrr-admin a:active,
+body.wrr-admin button:focus,
+body.wrr-admin button:focus-visible,
+body.wrr-admin button:active {
+	outline: none !important;
+	box-shadow: none !important;
+}
+
+body.wrr-admin .wrr-btn-primary:focus,
+body.wrr-admin .wrr-btn-primary:hover {
+	color: #ffffff;
+}
+
+body.wrr-admin .wrr-btn-secondary:focus,
+body.wrr-admin .wrr-btn-secondary:hover {
+	color: #374151;
+}
+
+body.wrr-admin .wrr-btn-ghost:focus,
+body.wrr-admin .wrr-btn-ghost:hover {
+	color: #64748b;
+}
+
+body.wrr-admin .wrr-btn-danger:focus,
+body.wrr-admin .wrr-btn-danger:hover {
+	color: #e11d48;
+}
+
+body.wrr-admin .wrr-btn-link:focus,
+body.wrr-admin .wrr-btn-link:hover {
+	color: #6366f1;
+}
+
+body.wrr-admin .wrr-hero .wrr-btn-primary:focus,
+body.wrr-admin .wrr-hero .wrr-btn-primary:hover {
+	color: #6d28d9;
+}
+
+body.wrr-admin .wrr-hero .wrr-btn-secondary:focus,
+body.wrr-admin .wrr-hero .wrr-btn-secondary:hover,
+body.wrr-admin .wrr-hero .wrr-btn-danger:focus,
+body.wrr-admin .wrr-hero .wrr-btn-danger:hover,
+body.wrr-admin .wrr-hero .wrr-btn-ghost:focus,
+body.wrr-admin .wrr-hero .wrr-btn-ghost:hover {
+	color: #ffffff;
+}
+
+body.wrr-admin .wrr-nav-tab[aria-selected="true"]:focus,
+body.wrr-admin .wrr-nav-tab[aria-selected="true"]:hover,
+body.wrr-admin .wrr-nav-tab-active:focus,
+body.wrr-admin .wrr-nav-tab-active:hover {
+	color: #ffffff;
+}
+
+body.wrr-admin .wrr-submenu-rail-link.is-active:focus,
+body.wrr-admin .wrr-submenu-rail-link.is-active:hover {
+	color: #ffffff;
+}

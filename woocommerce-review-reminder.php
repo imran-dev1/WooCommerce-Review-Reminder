@@ -3,7 +3,7 @@
  * Plugin Name:       WooCommerce Review Reminder
  * Plugin URI:        https://woocommerce-review-reminder.example.com
  * Description:       Automatically request product reviews from customers after they purchase and receive their orders. Build, schedule and track beautiful review-request campaigns from a modern dashboard.
- * Version:           1.2.3
+ * Version:           1.2.4
  * Requires at least: 6.2
  * Requires PHP:      8.1
  * Author:            WooCommerce Review Reminder
@@ -21,7 +21,7 @@ declare( strict_types=1 );
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'WRR_VERSION', '1.2.3' );
+define( 'WRR_VERSION', '1.2.4' );
 define( 'WRR_PLUGIN_FILE', __FILE__ );
 define( 'WRR_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WRR_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
