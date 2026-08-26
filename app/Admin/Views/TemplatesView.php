@@ -109,14 +109,18 @@ final class TemplatesView {
 
 		// Preview modal.
 		echo '<div x-show="preview" x-cloak class="wrr-modal-overlay" x-transition.opacity>';
-		echo '<div class="wrr-modal" x-on:click.outside="closePreview()" x-trap="preview">';
+		echo '<div class="wrr-modal wrr-modal-wide" x-on:click.outside="closePreview()" x-trap="preview">';
 		echo '<div class="wrr-modal-header">';
 		echo '<h3 class="text-lg font-semibold text-gray-900" x-text="preview ? preview.name : \'\'"></h3>';
 		echo '<button type="button" class="text-gray-400 hover:text-gray-600" x-on:click="closePreview()" aria-label="' . esc_attr__( 'Close', 'woocommerce-review-reminder' ) . '">' . Icons::get( 'x' ) . '</button>';
 		echo '</div>';
 		echo '<div class="wrr-modal-body">';
-		echo '<p class="text-sm font-medium text-gray-700" x-text="preview ? \'Subject: \' + preview.subject : \'\'"></p>';
-		echo '<div class="mt-3 whitespace-pre-wrap rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700" x-text="preview ? preview.body : \'\'"></div>';
+		echo '<p class="text-sm font-medium text-gray-700" x-text="previewHtml && previewHtml.subject ? \'Subject: \' + previewHtml.subject : \'\'"></p>';
+		echo '<div class="mt-3" x-show="previewLoading" x-cloak><div class="rounded-lg border border-gray-200 bg-gray-50 p-6 text-sm text-gray-500">' . esc_html__( 'Rendering preview…', 'woocommerce-review-reminder' ) . '</div></div>';
+		echo '<div class="mt-3 overflow-hidden rounded-lg border border-gray-200 bg-white" x-show="previewHtml && previewHtml.body" x-cloak>';
+		echo '<iframe class="wrr-preview-frame" :srcdoc="previewHtml ? previewHtml.body : \'\'" sandbox="" title="' . esc_attr__( 'Email preview', 'woocommerce-review-reminder' ) . '"></iframe>';
+		echo '</div>';
+		echo '<p class="mt-3 rounded-lg border border-gray-200 bg-gray-50 p-6 text-sm text-gray-500" x-show="!previewLoading && !(previewHtml && previewHtml.body)" x-cloak>' . esc_html__( 'No preview available.', 'woocommerce-review-reminder' ) . '</p>';
 		echo '</div>';
 		echo '<div class="wrr-modal-footer">';
 		echo '<button type="button" class="wrr-btn wrr-btn-secondary" x-on:click="closePreview()">' . esc_html__( 'Close', 'woocommerce-review-reminder' ) . '</button>';

@@ -308,15 +308,34 @@ document.addEventListener('alpine:init', () => {
 	Alpine.data('wrrTemplates', (initial) => ({
 		items: Array.isArray(initial) ? initial : (initial && initial.items) || [],
 		preview: null,
+		previewHtml: null,
+		previewLoading: false,
 		form: { id: 0, name: '', subject: '', body: '' },
 		formOpen: false,
 		saving: false,
 		deletingId: null,
 		openPreview(t) {
 			this.preview = t;
+			this.previewHtml = null;
+			this.previewLoading = true;
+			WRR.api('POST', 'emails/preview', {
+				subject: (t && t.subject) || '',
+				body: (t && t.body) || '',
+			})
+				.then((res) => {
+					this.previewHtml = res && res.body ? { subject: res.subject || '', body: res.body } : null;
+				})
+				.catch((err) => {
+					WRR.toast(err && err.message ? err.message : 'Could not render the preview.', 'error');
+				})
+				.finally(() => {
+					this.previewLoading = false;
+				});
 		},
 		closePreview() {
 			this.preview = null;
+			this.previewHtml = null;
+			this.previewLoading = false;
 		},
 		openEdit(t) {
 			this.form = t
