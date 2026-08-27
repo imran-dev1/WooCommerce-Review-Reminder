@@ -12,7 +12,27 @@ Alpine.plugin(focus);
 
 const cfg = window.WRR_CONFIG || {};
 const NONCE = cfg.nonce || '';
-const REST_URL = cfg.restUrl || '/wp-json/woocommerce-review-reminder/v1/';
+
+/**
+ * REST base URL, re-anchored to the origin the admin page is actually served
+ * from. WP's rest_url() is built from the configured siteurl (e.g. an internal
+ * host:port), which the browser cannot reach when the page is viewed through a
+ * preview proxy — so reuse the page's own origin while keeping the API path.
+ * @returns {string}
+ */
+function resolveRestUrl() {
+	const fallback = '/wp-json/woocommerce-review-reminder/v1/';
+	try {
+		const u = new URL(cfg.restUrl || fallback, window.location.origin);
+		u.protocol = window.location.protocol;
+		u.host = window.location.host;
+		return u.toString();
+	} catch (e) {
+		return cfg.restUrl || fallback;
+	}
+}
+
+const REST_URL = resolveRestUrl();
 
 /**
  * Build a REST url from a relative path (e.g. 'campaigns') and query params.
