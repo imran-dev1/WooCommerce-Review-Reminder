@@ -287,6 +287,10 @@ document.addEventListener('alpine:init', () => {
 		},
 		async deleteCampaign(id) {
 			await WRR.api('DELETE', `campaigns/${id}`);
+			const row = this.$root.querySelector(`tr[data-cid="${id}"]`);
+			if (row && row.parentNode) {
+				row.parentNode.removeChild(row);
+			}
 			WRR.toast('Campaign deleted.', 'success', () => WRR.reload());
 		},
 	}));

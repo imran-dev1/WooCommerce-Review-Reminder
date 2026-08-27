@@ -1285,6 +1285,19 @@ body.wrr-admin .wrr-hero .wrr-btn-ghost:hover {
 	color: #ffffff;
 }
 
+body.wrr-admin .wrr-nav-tab {
+	color: #64748b;
+}
+
+body.wrr-admin .wrr-nav-tab:hover {
+	color: #0f172a;
+}
+
+body.wrr-admin .wrr-nav-tab[aria-selected="true"],
+body.wrr-admin .wrr-nav-tab-active {
+	color: #ffffff;
+}
+
 body.wrr-admin .wrr-nav-tab[aria-selected="true"]:focus,
 body.wrr-admin .wrr-nav-tab[aria-selected="true"]:hover,
 body.wrr-admin .wrr-nav-tab-active:focus,
