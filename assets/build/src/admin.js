@@ -85,12 +85,15 @@ async function api(method, path, body, params) {
 
 let toastWrap = null;
 
+const TOAST_MIN_MS = 3000;
+
 /**
- * Lightweight toast notification.
+ * Lightweight toast notification. Stays visible for at least TOAST_MIN_MS.
  * @param {string} message
  * @param {'success'|'error'} [type]
+ * @param {() => void} [onDismiss] Invoked once the toast has been dismissed.
  */
-function toast(message, type) {
+function toast(message, type, onDismiss) {
 	if (!toastWrap) {
 		toastWrap = document.createElement('div');
 		toastWrap.className = 'wrr-toast-wrap';
@@ -100,7 +103,10 @@ function toast(message, type) {
 	el.className = 'wrr-toast' + (type === 'error' ? ' wrr-toast-error' : '');
 	el.textContent = message;
 	toastWrap.appendChild(el);
-	window.setTimeout(() => el.remove(), 3500);
+	window.setTimeout(() => {
+		el.remove();
+		if (typeof onDismiss === 'function') onDismiss();
+	}, TOAST_MIN_MS);
 }
 
 function pad(n) {
@@ -264,8 +270,7 @@ document.addEventListener('alpine:init', () => {
 			this.busy = true;
 			try {
 				await WRR.api('POST', `campaigns/${id}/${actionName}`);
-				WRR.toast(`Campaign ${actionName === 'duplicate' ? 'duplicated' : actionName + 'd'}.`);
-				WRR.reload();
+				WRR.toast(`Campaign ${actionName === 'duplicate' ? 'duplicated' : actionName + 'd'}.`, 'success', () => WRR.reload());
 			} catch (err) {
 				WRR.toast(err.message, 'error');
 			} finally {
@@ -282,8 +287,7 @@ document.addEventListener('alpine:init', () => {
 		},
 		async deleteCampaign(id) {
 			await WRR.api('DELETE', `campaigns/${id}`);
-			WRR.toast('Campaign deleted.');
-			WRR.reload();
+			WRR.toast('Campaign deleted.', 'success', () => WRR.reload());
 		},
 	}));
 
@@ -299,12 +303,24 @@ document.addEventListener('alpine:init', () => {
 		},
 		async cancelRequest(id) {
 			await WRR.api('POST', `requests/${id}`);
-			WRR.toast('Request cancelled.');
-			WRR.reload();
+			WRR.toast('Request cancelled.', 'success', () => WRR.reload());
 		},
 	}));
 
-	/* Email template list: preview / create / edit / delete. */
+	/* Sidebar collapse rail. */
+	Alpine.data('wrrRail', () => ({
+		collapsed: localStorage.getItem('wrr_rail_collapsed') === '1',
+		init() {
+			document.body.classList.toggle('wrr-rail-collapsed', this.collapsed);
+		},
+		toggle() {
+			this.collapsed = !this.collapsed;
+			document.body.classList.toggle('wrr-rail-collapsed', this.collapsed);
+			localStorage.setItem('wrr_rail_collapsed', this.collapsed ? '1' : '0');
+		},
+	}));
+
+	/* Email template list: preview / create / edit / delete / test email. */
 	Alpine.data('wrrTemplates', (initial) => ({
 		items: Array.isArray(initial) ? initial : (initial && initial.items) || [],
 		preview: null,
@@ -314,6 +330,12 @@ document.addEventListener('alpine:init', () => {
 		formOpen: false,
 		saving: false,
 		deletingId: null,
+		testOpen: false,
+		testTo: (cfg && cfg.userEmail) || '',
+		testName: '',
+		testSubject: '',
+		testBody: '',
+		sendingTest: false,
 		openPreview(t) {
 			this.preview = t;
 			this.previewHtml = null;
@@ -355,7 +377,7 @@ document.addEventListener('alpine:init', () => {
 		async saveTemplate() {
 			const form = this.form || { id: 0, name: '', subject: '', body: '' };
 			if (!form.name || !String(form.name).trim()) {
-				WRR.toast('Template name is required.', 'error');
+				WRR.toast('Email template name is required.', 'error');
 				return;
 			}
 			this.saving = true;
@@ -368,21 +390,20 @@ document.addEventListener('alpine:init', () => {
 				};
 				if (form.id > 0) {
 					await WRR.api('PUT', `templates/${form.id}`, payload);
-					WRR.toast('Template updated.');
+					WRR.toast('Email template updated.', 'success', () => WRR.reload());
 				} else {
 					await WRR.api('POST', 'templates', payload);
-					WRR.toast('Template created.');
+					WRR.toast('Email template created.', 'success', () => WRR.reload());
 				}
-				WRR.reload();
 			} catch (err) {
-				WRR.toast(err && err.message ? err.message : 'Could not save the template.', 'error');
+				WRR.toast(err && err.message ? err.message : 'Could not save the email template.', 'error');
 			} finally {
 				this.saving = false;
 			}
 		},
 		askDelete(id, name) {
 			this.$dispatch('wrr-confirm-ask', {
-				title: 'Delete template?',
+				title: 'Delete email template?',
 				message: `This permanently deletes “${name}”.`,
 				confirmLabel: 'Delete',
 				action: () => this.deleteTemplate(id),
@@ -390,8 +411,44 @@ document.addEventListener('alpine:init', () => {
 		},
 		async deleteTemplate(id) {
 			await WRR.api('DELETE', `templates/${id}`);
-			WRR.toast('Template deleted.');
-			WRR.reload();
+			WRR.toast('Email template deleted.', 'success', () => WRR.reload());
+		},
+		openTest(t) {
+			this.testTo = (cfg && cfg.userEmail) || '';
+			this.testName = (t && t.name) || '';
+			this.testSubject = (t && t.subject) || '';
+			this.testBody = (t && t.body) || '';
+			this.testOpen = true;
+		},
+		openTestFromForm() {
+			const form = this.form || {};
+			this.testTo = (cfg && cfg.userEmail) || '';
+			this.testName = form.name || '';
+			this.testSubject = form.subject || '';
+			this.testBody = form.body || '';
+			this.testOpen = true;
+		},
+		closeTest() {
+			this.testOpen = false;
+		},
+		async sendTest() {
+			if (!this.testTo || !String(this.testTo).trim()) {
+				WRR.toast('Please enter a recipient email.', 'error');
+				return;
+			}
+			this.sendingTest = true;
+			try {
+				const res = await WRR.api('POST', 'emails/test', {
+					to: this.testTo.trim(),
+					subject: this.testSubject,
+					body: this.testBody,
+				});
+				WRR.toast((res && res.message) || 'Test email sent.');
+			} catch (err) {
+				WRR.toast((err && err.message) || 'Could not send the test email.', 'error');
+			} finally {
+				this.sendingTest = false;
+			}
 		},
 	}));
 
