@@ -48,9 +48,9 @@ final class TemplatesView {
 		echo '<div x-data="wrrTemplates(' . View::json_attr( $data ) . ')">';
 
 		echo View::page_header(
-			__( 'Templates', 'woocommerce-review-reminder' ),
+			__( 'Email Templates', 'woocommerce-review-reminder' ),
 			__( 'Reusable email templates for your review requests.', 'woocommerce-review-reminder' ),
-			'<button type="button" class="wrr-btn wrr-btn-primary" x-on:click="openEdit(null)">' . Icons::get( 'plus' ) . esc_html__( 'New template', 'woocommerce-review-reminder' ) . '</button>'
+			'<button type="button" class="wrr-btn wrr-btn-primary" x-on:click="openEdit(null)">' . Icons::get( 'plus' ) . esc_html__( 'New email template', 'woocommerce-review-reminder' ) . '</button>'
 		);
 
 		echo '<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" x-cloak>';
@@ -71,6 +71,7 @@ final class TemplatesView {
 		echo '<div class="wrr-card-actions">';
 		echo '<div class="flex items-center gap-2">';
 		echo '<button type="button" class="wrr-icon-btn" x-on:click="openPreview(t)" aria-label="' . esc_attr__( 'Preview', 'woocommerce-review-reminder' ) . '" title="' . esc_attr__( 'Preview', 'woocommerce-review-reminder' ) . '">' . Icons::get( 'eye', 'h-4 w-4' ) . '</button>';
+		echo '<button type="button" class="wrr-icon-btn" x-on:click="openTest(t)" aria-label="' . esc_attr__( 'Send test email', 'woocommerce-review-reminder' ) . '" title="' . esc_attr__( 'Send test email', 'woocommerce-review-reminder' ) . '">' . Icons::get( 'send', 'h-4 w-4' ) . '</button>';
 		echo '<button type="button" class="wrr-icon-btn wrr-icon-btn-danger" x-show="!t.is_builtin" x-on:click="askDelete(t.id, t.name)" aria-label="' . esc_attr__( 'Delete', 'woocommerce-review-reminder' ) . '" title="' . esc_attr__( 'Delete', 'woocommerce-review-reminder' ) . '">' . Icons::get( 'trash', 'h-4 w-4' ) . '</button>';
 		echo '</div>';
 		echo '<button type="button" class="wrr-btn wrr-btn-purple" x-on:click="openEdit(t)">' . Icons::get( 'edit', 'h-4 w-4' ) . esc_html__( 'Edit', 'woocommerce-review-reminder' ) . '</button>';
@@ -88,7 +89,7 @@ final class TemplatesView {
 		echo '<div x-show="formOpen" x-cloak class="wrr-modal-overlay" x-transition.opacity>';
 		echo '<div class="wrr-modal" x-on:click.outside="closeForm()" x-trap="formOpen">';
 		echo '<div class="wrr-modal-header">';
-		echo '<h3 class="text-lg font-semibold text-gray-900" x-text="form.id > 0 ? \'Edit template\' : \'New template\'"></h3>';
+		echo '<h3 class="text-lg font-semibold text-gray-900" x-text="form.id > 0 ? \'Edit email template\' : \'New email template\'"></h3>';
 		echo '<button type="button" class="text-gray-400 hover:text-gray-600" x-on:click="closeForm()" aria-label="' . esc_attr__( 'Close', 'woocommerce-review-reminder' ) . '">' . Icons::get( 'x' ) . '</button>';
 		echo '</div>';
 		echo '<div class="wrr-modal-body">';
@@ -110,9 +111,10 @@ final class TemplatesView {
 		echo '</div>';
 		echo '</div>';
 		echo '<div class="wrr-modal-footer">';
+		echo '<button type="button" class="wrr-btn wrr-btn-secondary" x-on:click="openTestFromForm()" x-bind:disabled="saving">' . Icons::get( 'send', 'h-4 w-4' ) . esc_html__( 'Send test', 'woocommerce-review-reminder' ) . '</button>';
 		echo '<button type="button" class="wrr-btn wrr-btn-secondary" x-on:click="closeForm()">' . esc_html__( 'Cancel', 'woocommerce-review-reminder' ) . '</button>';
 		echo '<button type="button" class="wrr-btn wrr-btn-primary" x-on:click="saveTemplate()" x-bind:disabled="saving">'
-			. '<span x-show="!saving">' . esc_html__( 'Save template', 'woocommerce-review-reminder' ) . '</span>'
+			. '<span x-show="!saving">' . esc_html__( 'Save email template', 'woocommerce-review-reminder' ) . '</span>'
 			. '<span x-show="saving" x-cloak>' . esc_html__( 'Saving…', 'woocommerce-review-reminder' ) . '</span></button>';
 		echo '</div>';
 		echo '</div>';
@@ -135,6 +137,30 @@ final class TemplatesView {
 		echo '</div>';
 		echo '<div class="wrr-modal-footer">';
 		echo '<button type="button" class="wrr-btn wrr-btn-secondary" x-on:click="closePreview()">' . esc_html__( 'Close', 'woocommerce-review-reminder' ) . '</button>';
+		echo '</div>';
+		echo '</div>';
+		echo '</div>';
+
+		// Send test email modal.
+		echo '<div x-show="testOpen" x-cloak class="wrr-modal-overlay" x-transition.opacity>';
+		echo '<div class="wrr-modal" x-on:click.outside="closeTest()" x-trap="testOpen">';
+		echo '<div class="wrr-modal-header">';
+		echo '<h3 class="text-lg font-semibold text-gray-900">' . esc_html__( 'Send test email', 'woocommerce-review-reminder' ) . '</h3>';
+		echo '<button type="button" class="text-gray-400 hover:text-gray-600" x-on:click="closeTest()" aria-label="' . esc_attr__( 'Close', 'woocommerce-review-reminder' ) . '">' . Icons::get( 'x' ) . '</button>';
+		echo '</div>';
+		echo '<div class="wrr-modal-body">';
+		echo '<p class="text-sm text-gray-600" x-show="testName" x-cloak x-text="\'Template: \' + testName"></p>';
+		echo '<div class="wrr-field">';
+		echo '<label class="wrr-label">' . esc_html__( 'Recipient email', 'woocommerce-review-reminder' ) . '</label>';
+		echo '<input type="email" class="wrr-input" x-model="testTo" placeholder="' . esc_attr__( 'you@example.com', 'woocommerce-review-reminder' ) . '" />';
+		echo '</div>';
+		echo '<p class="text-xs text-gray-400">' . esc_html__( 'The template is rendered with sample data and sent to the address above.', 'woocommerce-review-reminder' ) . '</p>';
+		echo '</div>';
+		echo '<div class="wrr-modal-footer">';
+		echo '<button type="button" class="wrr-btn wrr-btn-secondary" x-on:click="closeTest()">' . esc_html__( 'Cancel', 'woocommerce-review-reminder' ) . '</button>';
+		echo '<button type="button" class="wrr-btn wrr-btn-primary" x-on:click="sendTest()" x-bind:disabled="sendingTest">'
+			. '<span x-show="!sendingTest">' . esc_html__( 'Send test email', 'woocommerce-review-reminder' ) . '</span>'
+			. '<span x-show="sendingTest" x-cloak>' . esc_html__( 'Sending…', 'woocommerce-review-reminder' ) . '</span></button>';
 		echo '</div>';
 		echo '</div>';
 		echo '</div>';

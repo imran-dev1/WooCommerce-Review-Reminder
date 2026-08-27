@@ -222,7 +222,7 @@ final class AdminMenu {
 			AdminPage::REQUESTS       => __( 'Requests', 'woocommerce-review-reminder' ),
 			AdminPage::REVIEWS        => __( 'Reviews', 'woocommerce-review-reminder' ),
 			AdminPage::ANALYTICS      => __( 'Analytics', 'woocommerce-review-reminder' ),
-			AdminPage::TEMPLATES      => __( 'Templates', 'woocommerce-review-reminder' ),
+			AdminPage::TEMPLATES      => __( 'Email Templates', 'woocommerce-review-reminder' ),
 			AdminPage::SETTINGS       => __( 'Settings', 'woocommerce-review-reminder' ),
 			AdminPage::CAMPAIGN_EDIT  => __( 'Campaign editor', 'woocommerce-review-reminder' ),
 			AdminPage::REQUEST_DETAIL => __( 'Request detail', 'woocommerce-review-reminder' ),

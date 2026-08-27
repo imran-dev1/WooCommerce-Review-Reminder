@@ -119,6 +119,7 @@ final class Assets {
 			'siteName'      => get_bloginfo( 'name' ),
 			'siteUrl'       => esc_url_raw( home_url( '/' ) ),
 			'timezone'      => wp_timezone_string(),
+			'userEmail'     => wp_get_current_user()->user_email,
 			'userCanManage' => current_user_can( 'manage_woocommerce' ) || current_user_can( 'manage_options' ),
 		);
 	}
