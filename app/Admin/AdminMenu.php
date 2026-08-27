@@ -183,7 +183,7 @@ final class AdminMenu {
 			AdminPage::SETTINGS  => 'settings',
 		);
 
-		echo '<aside class="wrr-submenu-rail">';
+		echo '<aside class="wrr-submenu-rail" x-data="wrrRail()">';
 
 		echo '<div class="wrr-submenu-rail-header">';
 		echo '<span class="wrr-submenu-rail-logo"><img src="' . esc_url( WRR_PLUGIN_URL . 'assets/img/product-starred.svg' ) . '" alt="' . esc_attr__( 'Review Reminder', 'woocommerce-review-reminder' ) . '"></span>';
@@ -198,13 +198,18 @@ final class AdminMenu {
 			$active = $slug === $current;
 			$icon   = $icons[ $slug ] ?? 'inbox';
 			echo '<a class="wrr-submenu-rail-link' . ( $active ? ' is-active' : '' ) . '" href="' . esc_url( admin_url( 'admin.php?page=' . $slug ) ) . '">';
-			echo '<span class="wrr-submenu-rail-icon">' . Icons::get( $icon, 'h-4 w-4' ) . '</span>';
-			echo '<span>' . esc_html( $this->menu_label( $slug ) ) . '</span>';
+			echo '<span class="wrr-submenu-rail-icon">' . Icons::get( $icon, 'h-5 w-5' ) . '</span>';
+			echo '<span class="wrr-submenu-rail-label">' . esc_html( $this->menu_label( $slug ) ) . '</span>';
 			echo '</a>';
 		}
 		echo '</nav>';
 
 		echo '<div class="wrr-submenu-rail-footer">' . esc_html__( 'Version ', 'woocommerce-review-reminder' ) . esc_html( WRR_VERSION ) . '</div>';
+
+		echo '<button type="button" class="wrr-submenu-rail-toggle" x-on:click="toggle()" aria-label="' . esc_attr__( 'Collapse sidebar', 'woocommerce-review-reminder' ) . '" title="' . esc_attr__( 'Collapse sidebar', 'woocommerce-review-reminder' ) . '">';
+		echo '<span class="wrr-submenu-rail-toggle-icon">' . Icons::get( 'panel', 'h-5 w-5' ) . '</span>';
+		echo '<span class="wrr-submenu-rail-toggle-label">' . esc_html__( 'Collapse', 'woocommerce-review-reminder' ) . '</span>';
+		echo '</button>';
 
 		echo '</aside>';
 	}
