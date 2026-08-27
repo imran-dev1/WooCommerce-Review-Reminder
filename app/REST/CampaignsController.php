@@ -170,6 +170,11 @@ final class CampaignsController extends RestController {
 			return rest_ensure_response( new \WP_Error( 'missing_name', __( 'Campaign name is required.', 'woocommerce-review-reminder' ), array( 'status' => 400 ) ) );
 		}
 
+		$status = sanitize_key( (string) ( $data['status'] ?? 'draft' ) );
+		if ( ! in_array( $status, array( 'active', 'paused', 'draft', 'archived' ), true ) ) {
+			$status = 'draft';
+		}
+
 		/** @var CampaignService $service */
 		$service = $this->service( CampaignService::class );
 
@@ -177,7 +182,7 @@ final class CampaignsController extends RestController {
 			array(
 				'name'        => $name,
 				'description' => sanitize_textarea_field( (string) ( $data['description'] ?? '' ) ),
-				'status'      => 'draft',
+				'status'      => $status,
 				'config'      => $data['config'] ?? array(),
 			)
 		);

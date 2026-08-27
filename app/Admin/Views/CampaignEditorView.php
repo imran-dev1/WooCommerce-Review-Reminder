@@ -62,6 +62,7 @@ final class CampaignEditorView {
 			'config'      => $config,
 		);
 
+		echo '<div x-data="wrrCampaignEditor(' . View::json_attr( $initial ) . ')">';
 		View::open();
 		echo View::page_header(
 			$id > 0 ? $name : __( 'New campaign', 'woocommerce-review-reminder' ),
@@ -75,7 +76,7 @@ final class CampaignEditorView {
 				. ( $id > 0 ? esc_html__( 'Save & activate', 'woocommerce-review-reminder' ) : esc_html__( 'Create & activate', 'woocommerce-review-reminder' ) ) . '</button>'
 		);
 
-		echo '<div class="grid gap-6" x-data="wrrCampaignEditor(' . View::json_attr( $initial ) . ')">';
+		echo '<div class="grid gap-6">';
 
 		// Basics.
 		echo '<div class="wrr-card">';
@@ -292,9 +293,10 @@ final class CampaignEditorView {
 			. esc_html__( 'When an order matches the trigger, the plugin schedules a request and sends the email after the delay. Customers can unsubscribe from any email, and requests are automatically cancelled when the order is refunded or cancelled, or when the customer reviews the product.', 'woocommerce-review-reminder' ) . '</div>';
 		echo '</div>';
 
-		echo '</div>'; // editor alpine root
+		echo '</div>';
 
 		View::close();
+		echo '</div>'; // editor alpine root
 	}
 
 	/**
