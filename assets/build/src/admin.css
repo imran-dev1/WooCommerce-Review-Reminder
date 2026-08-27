@@ -1184,9 +1184,10 @@ body.folded .wrr-submenu-rail {
 	left: 36px;
 }
 
-/* Hide the plugin's own submenu inside the WP sidebar while the rail is shown. */
-body.wrr-admin #toplevel_page_wrr-dashboard .wp-submenu {
-	display: none !important;
+/* Keep the default WP sidebar on top of the plugin rail so its hover
+   flyout submenus stay visible, including the review plugin's own. */
+body.wrr-admin #adminmenuwrap {
+	z-index: 9999;
 }
 
 @media (max-width: 960px) {
