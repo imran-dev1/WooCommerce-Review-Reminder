@@ -37,6 +37,7 @@ final class CampaignProvider {
 			CampaignService::class,
 			static fn( Container $c ) => new CampaignService(
 				$c->get( CampaignRepository::class ),
+				$c->get( \WooCommerceReviewReminder\Queue\QueueService::class ),
 				$c->get( \WooCommerceReviewReminder\Core\Logger::class )
 			)
 		);

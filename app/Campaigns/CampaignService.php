@@ -11,6 +11,7 @@ namespace WooCommerceReviewReminder\Campaigns;
 
 use WooCommerceReviewReminder\Campaigns\Repository\CampaignRepository;
 use WooCommerceReviewReminder\Core\Logger;
+use WooCommerceReviewReminder\Queue\QueueService;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -27,6 +28,13 @@ final class CampaignService {
 	private CampaignRepository $repository;
 
 	/**
+	 * Queue service instance.
+	 *
+	 * @var QueueService
+	 */
+	private QueueService $queue;
+
+	/**
 	 * Logger instance.
 	 *
 	 * @var Logger
@@ -37,10 +45,12 @@ final class CampaignService {
 	 * CampaignService constructor.
 	 *
 	 * @param CampaignRepository $repository Repository instance.
+	 * @param QueueService       $queue      Queue service instance.
 	 * @param Logger             $logger     Logger instance.
 	 */
-	public function __construct( CampaignRepository $repository, Logger $logger ) {
+	public function __construct( CampaignRepository $repository, QueueService $queue, Logger $logger ) {
 		$this->repository = $repository;
+		$this->queue      = $queue;
 		$this->logger     = $logger;
 	}
 
@@ -139,14 +149,7 @@ final class CampaignService {
 	public function delete( int $id ): void {
 		do_action( 'wrr_campaign_before_delete', $id );
 
-		$queue = new \WooCommerceReviewReminder\Queue\QueueService(
-			new \WooCommerceReviewReminder\Queue\RequestRepository(
-				$this->repository->schema(),
-				$this->logger
-			),
-			$this->logger
-		);
-		$queue->cancel_by_campaign( $id );
+		$this->queue->cancel_by_campaign( $id );
 
 		$this->repository->delete( $id );
 		do_action( 'wrr_campaign_deleted', $id );
