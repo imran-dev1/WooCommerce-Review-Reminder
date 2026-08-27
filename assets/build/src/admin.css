@@ -1185,9 +1185,15 @@ body.folded .wrr-submenu-rail {
 }
 
 /* Keep the default WP sidebar on top of the plugin rail so its hover
-   flyout submenus stay visible, including the review plugin's own. */
+   flyout submenus stay visible. */
 body.wrr-admin #adminmenuwrap {
 	z-index: 9999;
+}
+
+/* The review plugin already has its own rail, so hide its duplicate
+   flyout submenu inside the WP sidebar. */
+body.wrr-admin #toplevel_page_wrr-dashboard .wp-submenu {
+	display: none !important;
 }
 
 @media (max-width: 960px) {
