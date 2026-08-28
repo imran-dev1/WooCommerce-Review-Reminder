@@ -45,8 +45,8 @@ final class SettingsView {
 			'advanced'     => __( 'Advanced', 'woocommerce-review-reminder' ),
 		);
 		foreach ( $tabs as $key => $label ) {
-			echo '<button type="button" class="wrr-btn wrr-btn-sm ' . ( 'general' === $key ? 'wrr-btn-primary' : 'wrr-btn-secondary' ) . '" '
-				. 'x-on:click="setTab(\'' . esc_attr( $key ) . '\')" x-show="tab === \'' . esc_attr( $key ) . '\' ? false : true" x-cloak>'
+			echo '<button type="button" class="wrr-btn wrr-btn-sm" :class="tab === \'' . esc_attr( $key ) . '\' ? \'wrr-btn-primary\' : \'wrr-btn-secondary\'" '
+				. 'x-on:click="setTab(\'' . esc_attr( $key ) . '\')">'
 				. esc_html( $label ) . '</button>';
 		}
 		echo '</div>';
