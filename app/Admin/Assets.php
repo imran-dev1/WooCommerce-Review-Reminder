@@ -68,7 +68,7 @@ final class Assets {
 				'wrr-admin',
 				WRR_PLUGIN_URL . 'assets/css/admin.css',
 				array(),
-				WRR_VERSION
+				(string) filemtime( $css )
 			);
 		}
 
@@ -77,7 +77,7 @@ final class Assets {
 				'wrr-admin',
 				WRR_PLUGIN_URL . 'assets/js/admin.js',
 				array(),
-				WRR_VERSION,
+				(string) filemtime( $js ),
 				true
 			);
 			wp_localize_script(
