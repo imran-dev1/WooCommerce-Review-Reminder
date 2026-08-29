@@ -109,9 +109,9 @@ final class Assets {
 	 */
 	private function config_payload(): array {
 		return array(
-			'restUrl'       => esc_url_raw( rest_url( 'woocommerce-review-reminder/v1/' ) ),
+			'restUrl'       => $this->relative_rest_url(),
 			'nonce'         => wp_create_nonce( 'wp_rest' ),
-			'adminUrl'      => esc_url_raw( admin_url( 'admin.php' ) ),
+			'adminUrl'      => $this->relative_admin_url(),
 			'pluginUrl'     => esc_url_raw( WRR_PLUGIN_URL ),
 			'version'       => WRR_VERSION,
 			'wcVersion'     => defined( 'WC_VERSION' ) ? WC_VERSION : '',
@@ -122,5 +122,41 @@ final class Assets {
 			'userEmail'     => wp_get_current_user()->user_email,
 			'userCanManage' => current_user_can( 'manage_woocommerce' ) || current_user_can( 'manage_options' ),
 		);
+	}
+
+	/**
+	 * Same-origin relative path to the plugin's REST namespace.
+	 *
+	 * The absolute rest_url() derives from the configured siteurl (e.g. an
+	 * internal host:port or a proxy host the browser cannot resolve), which
+	 * breaks client-side fetches when the admin page is served through a
+	 * preview proxy. A relative path resolves against the page's own origin,
+	 * so it works regardless of the host the page is served from.
+	 *
+	 * @return string
+	 */
+	private function relative_rest_url(): string {
+		$parts = wp_parse_url( rest_url( 'woocommerce-review-reminder/v1/' ) );
+		$path  = $parts['path'] ?? '/wp-json/woocommerce-review-reminder/v1/';
+		if ( isset( $parts['query'] ) ) {
+			$path .= '?' . $parts['query'];
+		}
+		return $path;
+	}
+
+	/**
+	 * Same-origin relative path to the plugin's admin.php entry point, for
+	 * the same reason as relative_rest_url(): navigation must stay on the
+	 * host the admin page is served from.
+	 *
+	 * @return string
+	 */
+	private function relative_admin_url(): string {
+		$parts = wp_parse_url( admin_url( 'admin.php' ) );
+		$path  = $parts['path'] ?? '/wp-admin/admin.php';
+		if ( isset( $parts['query'] ) ) {
+			$path .= '?' . $parts['query'];
+		}
+		return $path;
 	}
 }
