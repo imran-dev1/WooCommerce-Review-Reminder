@@ -93,6 +93,11 @@ final class SettingsController extends RestController {
 			return rest_ensure_response( new \WP_Error( 'invalid_data', __( 'Invalid request body.', 'woocommerce-review-reminder' ), array( 'status' => 400 ) ) );
 		}
 
+		// The client posts { settings: {...} } to mirror the GET response shape.
+		if ( isset( $data['settings'] ) && is_array( $data['settings'] ) ) {
+			$data = $data['settings'];
+		}
+
 		$config    = $this->service( Config::class );
 		$sanitized = $this->sanitize_settings( $data );
 
